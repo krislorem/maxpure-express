@@ -1,6 +1,7 @@
 import express from "express";
 import 'dotenv/config'
 import cors from 'cors';
+import { expressjwt } from "express-jwt";
 import ossRoute from './controller/ossRoute.js'
 import mailRoute from './controller/mailRoute.js'
 import userRoute from './controller/userRoute.js'
@@ -16,6 +17,16 @@ express()
   }))
   .use(express.json())
   .use(express.urlencoded({ extended: true }))
+  .use(expressJWT({
+    secret: secretKey,
+    algorithms: ["HS256"],
+  }).unless({
+    path: [
+      /^\/api\/login/,
+      /^\/api\/logout/,
+      { url: /\/public/, methods: ["GET"] }
+    ]
+  }))
   .use('/api/', ossRoute)
   .use('/api/', mailRoute)
   .use('/api/', userRoute)

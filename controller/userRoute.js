@@ -1,5 +1,6 @@
 import express from 'express'
 import client from '../config/redis.js'
+import jwt from 'jsonwebtoken';
 import { argonhash, argonverify } from '../util/argon.js';
 import { verifyUserExistByEmail, getUserPasswordByEmail, getUserInfoByEmail, initUserByEmail } from '../service/user.js'
 const router = express.Router()
@@ -25,7 +26,19 @@ router.post('/verify-code', async (req, res) => {
       return res.status(401).json({ code: 1, message: "密码错误", data: {} });
     } else {
       const users = await getUserInfoByEmail(email)
-      res.json({ code: 0, message: "验证成功", data: users })
+      const token = jwt.sign(
+        {
+          id: users[0].id,
+          email: users[0].email,
+          name: users[0].name,
+          timestamp: Date.now()
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "24h",
+        }
+      )
+      res.json({ code: 0, message: "验证成功", data: { user: users[0], token: `Bearer ${token}` } })
     }
   }
 });
