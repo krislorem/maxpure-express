@@ -1,5 +1,4 @@
 import redis from 'redis'
-import 'dotenv/config'
 const client = redis.createClient({
   url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
   password: process.env.REDIS_PASS,
